@@ -1,0 +1,34 @@
+version: "3"
+networks:
+  proxynet:
+    external:
+      name: authapp.network
+services:
+  authapp_api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: authapp_api
+    container_name: authapp_api
+    restart: unless-stopped
+    networks:
+      - proxynet
+    ports:
+      - "9090:9090"
+  authapp_db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci
+    restart: always
+    container_name: authapp_db
+    volumes:
+      - ./docker:/docker-entrypoint-initdb.d
+    networks:
+      - proxynet
+    ports:
+      - "9091:3306"
+    environment:
+      TZ: Africa/Nairobi
+      MYSQL_ROOT_PASSWORD: "BxUP2CYkHZ3zqzV9"
+      MYSQL_DATABASE: "authapp_db"
+      MYSQL_USER: "authapp_api"
+      MYSQL_PASSWORD: "BxUP2CYkHZ3zqzV9"
