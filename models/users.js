@@ -48,6 +48,12 @@ module.exports = (sequelize, DataTypes) => {
             unique: false,
             defaultValue: 'NULL',
         },
+        login_status: {
+            type: DataTypes.ENUM('0', '1'),
+            allowNull: false,
+            unique: false, 
+            defaultValue: "0"
+        },
         created_at: {
             allowNull: false,
             type: DataTypes.DATE,
