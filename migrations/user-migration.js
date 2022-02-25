@@ -47,6 +47,12 @@ module.exports = {
                 allowNull: false,
                 unique: false,
             },
+            login_status: {
+                type: Sequelize.ENUM('0', '1'),
+                allowNull: false,
+                unique: false, 
+                defaultValue: "0"
+            },
             created_at: {
                 allowNull: false,
                 type: Sequelize.DATE,
