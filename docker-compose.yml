@@ -28,7 +28,7 @@ services:
       - "9091:3306"
     environment:
       TZ: Africa/Nairobi
-      MYSQL_ROOT_PASSWORD: "BxUP2CYkHZ3zqzV9"
+      MYSQL_ROOT_PASSWORD: "_y$ecPdD(6HVNXYZ^;u3"
       MYSQL_DATABASE: "authapp_db"
       MYSQL_USER: "authapp_api"
-      MYSQL_PASSWORD: "BxUP2CYkHZ3zqzV9"
+      MYSQL_PASSWORD: "_y$ecPdD(6HVNXYZ^;u3"

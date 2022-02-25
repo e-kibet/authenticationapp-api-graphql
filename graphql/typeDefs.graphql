@@ -1,0 +1,48 @@
+type Query{
+ getUserDetails: [User]
+ getUser(id: ID!): User
+ loginUser(username: String, password: String): ApiResponse
+}
+
+type User {
+   id: ID!,
+   first_name:String,
+   last_name:String,
+   username:String,
+   email:String,
+   phone:String,
+   bio:String,
+   password: String,
+   photo: String
+}
+
+type ApiResponse{
+  status: Boolean,
+  status_code: ID!,
+  status_message: String,
+  token: String
+}
+
+type Mutation {
+   createUser(
+          first_name:String,
+          last_name:String,
+          username:String,
+          email:String,
+          phone:String,
+          bio:String,
+          password: String,
+          photo: String
+    ): String
+
+   updateUser(
+      id: ID!,
+      first_name:String,
+      last_name:String,
+      username:String,
+      email:String,
+      phone:String   
+   ) : String
+
+   deleteUser(id: ID!): String
+}
