@@ -10,7 +10,7 @@ const getPayload = token => {
     }
 }
 
-const sqlException = (exception) => {
+const sqlException = exception => {
     let error = "Something went wrong try again"
     if(exception.name === 'SequelizeUniqueConstraintError'){
         error = "Request failed. Record already exists"

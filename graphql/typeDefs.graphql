@@ -1,8 +1,8 @@
 type Query{
  getUserDetails: [User]
- getUser(id: ID!): User
+ getUser: User
  loginUser(username: String, password: String): ApiResponse
- logout(id: ID!): ApiResponse
+ logout: ApiResponse
 }
 
 type User {
