@@ -25,6 +25,8 @@ type ApiResponse{
   data: User
 }
 
+scalar Upload
+
 type Mutation {
    createUser(
           first_name:String,
@@ -47,4 +49,6 @@ type Mutation {
    ) : String
 
    deleteUser(id: ID!): String
+
+   uploadNewFile(file: Upload!): String
 }
