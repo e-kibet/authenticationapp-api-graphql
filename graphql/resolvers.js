@@ -2,9 +2,12 @@ require('dotenv').config()
 const models = require('../models/index')
 const jwt = require('jsonwebtoken');
 const { sqlException} = require('../helpers/util.helper')
-
+const { decodedToken, destroyToken } = require("../helpers/jwt.helper")
+ 
 const Query = {
-	getUserDetails: async () => {
+	getUserDetails: async (parent, args, context, info) => {
+		const decoded = decodedToken(context.req, false);
+		console.log(decoded)
 		try {
 			const users = await models.users.findAll();
 			return users;
@@ -13,8 +16,10 @@ const Query = {
 		}
 	},
 	getUser: async (parent, args, context, info) => {
+		const decoded = decodedToken(context.req, true);
+		console.info(decoded)
     	try {
-      		const user = await models.users.findByPk(args.id)
+      		const user = await models.users.findByPk(decoded.id)
       		return user;
     	} catch (err) {
       		console.log(err);
@@ -27,7 +32,7 @@ const Query = {
         if(!await user.validPassword(args.password)){
           return {status: false, status_code: 400, status_message: "invalid password entered is invalid", token: null}
         }else{
-          let payload = {username: user.username, email: user.email, phone: user.phone}
+          let payload = {id: user.id, username: user.username, email: user.email, phone: user.phone}
           var token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: process.env.JWT_EXPIRATION_TIME});
           await models.users.update({login_status: "1"}, {where: {username: user.username}})
           return {status: true, status_code: 200, status_message: "Login success", token: token}
@@ -38,15 +43,20 @@ const Query = {
     },
 
     logout: async (parent, args, context, info) => {
-      let user = await models.users.findOne({where: {id: args.id}})
-      if(user){
-        await models.users.update({login_status: "0"}, {where: {id: args.id}})
-        return {status: true, status_code: 200, status_message: "logout success", token: null}
-      }else{
-        return {status: false, status_code: 400, status_message: "No records found for the user", token: null}
-      }
-    }
-}
+		const decoded = decodedToken(context.req, false);
+		console.log(decoded)
+		let user = await models.users.findOne({where: {id: decoded.id}})
+		if(user){
+			await models.users.update({login_status: "0"}, {where: {id: decoded.id}})
+			/**
+			 * GET how to have the token expired when logged out
+			 */
+       	 	return {status: true, status_code: 200, status_message: "logout success", token: null}
+      	}else{
+        	return {status: false, status_code: 400, status_message: "No records found for the user", token: null}
+      	}
+    	}
+	}
 
 const Mutation = {
 	createUser: async (_ , {
@@ -55,9 +65,9 @@ const Mutation = {
 		username,
 		email,
 		phone,
-    bio,
-    password,
-    photo
+		bio,
+		password,
+		photo
 	}) =>  {
 		try {
 			await models.users && models.users.create({
@@ -65,10 +75,10 @@ const Mutation = {
 				last_name,
 				username,
 				email,
-        phone,
-        bio,
+				phone,
+				bio,
 				password,
-        photo			
+				photo			
 			}).then(async () => {
         return  "User has been created successful"
       }, async err => {
