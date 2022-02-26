@@ -3,6 +3,9 @@ const models = require('../models/index')
 const jwt = require('jsonwebtoken');
 const { sqlException} = require('../helpers/util.helper')
 const { decodedToken, destroyToken } = require("../helpers/jwt.helper")
+var Minio = require('minio')
+
+var minioClient = new Minio.Client({endPoint: 'play.min.io', port: 9000, useSSL: true, accessKey: process.env.MINIO_ACCESS_KEY, secretKey: process.env.MINIO_SECRET_KEY});
  
 const Query = {
 	getUserDetails: async (parent, args, context, info) => {
@@ -115,7 +118,31 @@ const Mutation = {
 	deleteUser: async(_ , { AuthorID }) => {
 		await models.users.destroy({ where: { id: AuthorID }})
 		return "User has been Deleted";
+	},
+
+	uploadNewFile: async (parent, args, context, info) => {
+		args.file.then(file => {
+			const stream = file.createStream()
+			const fileName = file.filename;
+			const mimetype = file.mimetype;
+			const metaData = {
+				'Content-Type': mimetype,
+			};
+
+			minioClient.putObject(process.env.MINIO_BUCKETNAME, fileName, stream, metaData, async (err, objInfo)  => {
+				console.log("shouldn't this run?");
+				if (err) {
+					console.log(err);
+				} else {
+					console.log('File uploaded successfully.');
+					console.log(objInfo);
+				}
+			});
+
+		})
+		return "Success!"
 	}
+
 }
 
 

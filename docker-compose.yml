@@ -32,3 +32,14 @@ services:
       MYSQL_DATABASE: "authapp_db"
       MYSQL_USER: "authapp_api"
       MYSQL_PASSWORD: "_y$ecPdD(6HVNXYZ^;u3"
+  authapp_minio:
+    image: minio/minio
+    container_name: authapp_minio
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./storage/minio:/data
+    environment:
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+    command: server --address 0.0.0.0:9000 /data
