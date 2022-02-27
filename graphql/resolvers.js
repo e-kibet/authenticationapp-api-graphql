@@ -3,7 +3,11 @@ const models = require('../models/index')
 const jwt = require('jsonwebtoken');
 const { sqlException} = require('../helpers/util.helper')
 const { decodedToken, destroyToken } = require("../helpers/jwt.helper")
-var Minio = require('minio')
+const Minio = require('minio')
+const {
+	join,
+	parse
+} = require('path')
 
 var minioClient = new Minio.Client({endPoint: 'play.min.io', port: 9000, useSSL: true, accessKey: process.env.MINIO_ACCESS_KEY, secretKey: process.env.MINIO_SECRET_KEY});
  
@@ -121,28 +125,34 @@ const Mutation = {
 	},
 
 	uploadNewFile: async (parent, args, context, info) => {
-		args.file.then(file => {
-			const stream = file.createStream()
-			const fileName = file.filename;
-			const mimetype = file.mimetype;
-			const metaData = {
-				'Content-Type': mimetype,
-			};
+		let file = args.file
 
-			minioClient.putObject(process.env.MINIO_BUCKETNAME, fileName, stream, metaData, async (err, objInfo)  => {
-				console.log("shouldn't this run?");
-				if (err) {
-					console.log(err);
-				} else {
-					console.log('File uploaded successfully.');
-					console.log(objInfo);
-				}
-			});
+		let { createReadStream, fileName, mimetype, encoding } = await args.file;
 
-		})
-		return "Success!"
-	}
+		console.log(`file name: ${fileName}`)
 
+		let stream = createReadStream()
+
+		let {
+			ext,
+			name
+		} =  parse(fileName)
+
+		console.log(`file name: ${fileName}`)
+
+		const metaData = {'Content-Type': mimetype};
+
+		minioClient.putObject(process.env.MINIO_BUCKETNAME, fileName, stream, metaData, async (err, objInfo)  => {
+			console.log("shouldn't this run?");
+			if (err) {
+				console.log(err);
+			} else {
+				console.log('File uploaded successfully.');
+				console.log(objInfo);
+			}
+		});
+	return "Success!"
+}
 }
 
 
